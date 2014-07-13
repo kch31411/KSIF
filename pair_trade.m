@@ -1,11 +1,11 @@
 tic;   % elapsed time
 clc; clear; close all;
 
-%% 상수 선언
-% ex) pair 검증 기간, 진입 기준 등등
+%% Constant declare
+% ex) pair verification period, invest entrance criteria 등등
 
-%% 데이터 읽어오기 
-% 지금은 fnDataGuide에서 주는 포맷을 따름.
+%% Read input data
+% fnDataGuide
 [ndata, text, alldata] = xlsread('future_price.xlsx');
 
 date = datenum(text(15:end,1), 'yyyy-mm-dd');
@@ -24,7 +24,7 @@ assert(num_date == size(price, 1), 'ERROR : date size does not match');
 num_asset = size(name, 2);
 assert(num_asset == size(price, 2), 'ERROR : asset size does not match');
 
-%% pair 찾기
+%% Finding pair
 
 [num_row num_col] = size(ndata);
 num_asset = num_col-1;
