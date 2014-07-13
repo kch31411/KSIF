@@ -10,8 +10,8 @@ date = datenum(text(15:end,1), 'yyyy-mm-dd');
 
 name = text(10, 2:end);
 % 종목이름 F 연결선물지수 -> 종목이름
-name = arrayfun(@(x) strread(x{1}, '%s', 'delimiter', ' '), name, 'UniformOutput', false);   % @(x) strsplit(x{1}) in current version of matlab 
-name = arrayfun(@(x) x{1}{1}, name, 'UniformOutput', false);
+name = arrayfun(@(x) textscan(x{1}, '%s', 'delimiter', ' '), name, 'UniformOutput', false);   % @(x) strsplit(x{1}) in current version of matlab 
+name = arrayfun(@(x) x{1}{1}{1}, name, 'UniformOutput', false);
 
 price = ndata(8:end,:);
 price = log(price);    % conver to log scale
