@@ -4,7 +4,7 @@ clc; clear; close all;
 
 % 데이터 읽어오기 
 % 지금은 fnDataGuide에서 주는 포맷을 따름.
-[ndata, text, alldata] = xlsread('개별_주식선물.xlsx');
+[ndata, text, alldata] = xlsread('future_price.xlsx');
 
 date = datenum(text(15:end,1), 'yyyy-mm-dd');
 
