@@ -61,8 +61,7 @@ classdef Pair < handle
                         end
 
                         % calculate number of contract
-                        % XXX : origianl code : exp(price) ??
-                        [cur_pair.cont_A, cur_pair.cont_B] = num_contracts(cur_pair, price_A(end), price_B(end));
+                        [cur_pair.cont_A, cur_pair.cont_B] = num_contracts(cur_pair, exp(price_A(end)), exp(price_B(end)));
 
                         % waitbar update
                         count = count + 1;
@@ -75,22 +74,12 @@ classdef Pair < handle
             close(wb);
         end % constructor
         
-        function r = sampleMethod(this)
-            r = 0;
-        end
-        
         function [contract_A, contract_B] = num_contracts(this, price_A, price_B)
             % XXX : need verification
-            cc = this.cc;
-            mul_A = this.mul_A;
-            mul_B = this.mul_B;
-            current_point = this.residual(end);
-            
-            % cc를 곱하는 이유는 stationarity 때문에
-
             cont_A = 1;
-            cont_B = abs(cc*price_A*mul_A)/(price_B*mul_B);
+            cont_B = abs(this.cc * price_A * this.mul_A) / (price_B * this.mul_B);
 
+            % XXX : how about using rats()
             if cont_B >= 1
                 deci = cont_B - floor(cont_B);
                 if deci > 0.8
@@ -126,8 +115,8 @@ classdef Pair < handle
                 end
             end
 
-            if cc > 0
-                if current_point < 0 
+            if this.cc > 0
+                if this.residual(end) < 0 
                     cont_A = cont_A;
                     cont_B = -cont_B;
                 else
@@ -135,7 +124,7 @@ classdef Pair < handle
                     cont_B = cont_B;
                 end
             else
-                if current_point > 0
+                if this.residual(end) > 0
                     cont_A = -cont_A;
                     cont_B = -cont_B;
                 end

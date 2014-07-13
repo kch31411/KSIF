@@ -25,12 +25,8 @@ num_asset = size(name, 2);
 assert(num_asset == size(price, 2), 'ERROR : asset size does not match');
 
 %% Finding pair
-cc_pairs = zeros(num_asset);
-pairs_stationary = zeros(num_asset);
+pairs = Pair(name, price);
 
-
-
-%%
 num_pairs = nnz(pairs_stationary);
 disp_matrix = cell(num_pairs+1,9);
 
