@@ -26,25 +26,34 @@ num_asset = size(name, 2);
 assert(num_asset == size(price, 2), 'ERROR : asset size does not match');
 
 %% Finding pair
-last_day = date(end);
-pairs = Pair(name, price, date, last_day, FIND_PAIR_PERIOD);
+end_date = date(end);    % last date
 
-num_pairs = nnz(pairs_stationary);
-disp_matrix = cell(num_pairs+1,9);
+% Find range of array
+end_index = find(date==end_date, 1);
+if isempty(end_index)
+    end_index = num_date;
+    display('Warning : invalid end_date');
+end
+start_index = end_index - FIND_PAIR_PERIOD + 1;
+if start_index <= 0
+    start_index = 1;
+    display('Warning : not enough input data (start_date)');
+end
 
-% disp_matrix(1, :) = {'assetA', 'vs.', 'assetB', 'corr', 'cc', 'sp. mean','std_resid', 'contract A', 'contract B'};
-display(sprintf('asset A\tvs.\tasset B\tcorrelation\tcointegration\tspread mean\tcontraction A\tcontraction B\tspeed\n'));
-for idx=1:num_pairs
-    % pos_plot = rem(idx,6);
+pairs = Pair(name, price, start_index, end_index);
 
-    tmp_text = [text{1,PAIRS(idx).idx_A} '\tvs.\t' text{1,PAIRS(idx).idx_B} '\t%3.1f%%\t%10.3f\t%10.3f\t%d\t%d\t%d'];
-    
-    display(sprintf(tmp_text, 100*PAIRS(idx).corr, PAIRS(idx).cc, PAIRS(idx).sp_mean, PAIRS(idx).cont_A, PAIRS(idx).cont_B, PAIRS(idx).speed));
-    
-    title_plot = [text{1,PAIRS(idx).idx_A} ' vs. ' text{1,PAIRS(idx).idx_B}];
-    plot_spread(ndata(1:num_insmpl, 1)+693960, PAIRS(idx).residual, title_plot, 100*PAIRS(idx).corr, PAIRS(idx).cc, PAIRS(idx).cont_A, PAIRS(idx).cont_B); 
-    tmp_mvavg = tsmovavg(PAIRS(idx).residual','s',5);
-    plot_spread(ndata(5:num_insmpl, 1)+693960, tmp_mvavg(5:num_insmpl), title_plot, 100*PAIRS(idx).corr, PAIRS(idx).cc, PAIRS(idx).cont_A, PAIRS(idx).cont_B); 
+display(sprintf('asset A\tvs.\tasset B\tcorrelation\tcointegration\tspread mean\tcontraction A\tcontraction B\n'));
+for pair=pairs
+    if pair.is_stationary
+        tmp_text = [pair.name_A '\tvs.\t' pair.name_B '\t%3.1f%%\t%10.3f\t%10.3f\t%d\t%d'];
+
+        display(sprintf(tmp_text, 100 * pair.corr, pair.cc, pair.sp_mean, pair.cont_A, pair.cont_B));
+
+        title_plot = [pair.name_A ' vs. ' pair.name_B];
+        plot_spread(x2mdate(date(start_index:end_index), 0), pair.residual, title_plot, 100 * pair.corr, pair.cc, pair.cont_A, pair.cont_B); 
+        tmp_mvavg = tsmovavg(pair.residual','s',5);
+        plot_spread(x2mdate(date(start_index+4:end_index)), tmp_mvavg(5:end), title_plot, 100 * pair.corr, pair.cc, pair.cont_A, pair.cont_B); 
+    end
 end
 
 

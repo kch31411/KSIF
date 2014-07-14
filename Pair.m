@@ -19,22 +19,9 @@ classdef Pair < handle
     
     methods
         % get raw data and make object matrix
-        function pairs = Pair(name, price, date, end_date, period)
+        function pairs = Pair(name, price, start_index, end_index)
             if nargin ~= 0      % Allow nargin == 0 syntax
                 num_asset = size(name, 2);
-                
-                % Find range of array
-                end_index = find(date==end_date, 1);
-                if isempty(end_index)
-                    end_index = size(date, 1);
-                    display('Warning : invalid end_date');
-                end
-                
-                start_index = end_index - period + 1;
-                if start_index <= 0
-                    start_index = 1;
-                    display('Warning : not enough input data (start_date)');
-                end
                 
                 % waitbar ÃÊ±âÈ­
                 count = 0;
@@ -65,9 +52,9 @@ classdef Pair < handle
                         cur_pair.std_resid = std(cur_pair.residual);
                         
                         % staionarity test
-                        h1 = adftest(resid, 'alpha', 0.05, 'model', {'AR', 'ard', 'ts'});
+                        h1 = adftest(cur_pair.residual, 'alpha', 0.05, 'model', {'AR', 'ard', 'ts'});
                         if h1(1) == 1 && h1(2) == 1 && h1(3) == 1    % test for 3 models  XXX : really neccessary to test for 3 
-                            h2 = lmctest(resid, 'alpha', 0.05);
+                            h2 = lmctest(cur_pair.residual, 'alpha', 0.05);
                             if h2 == 0
                                 cur_pair.is_stationary = 1;
                             end
@@ -83,8 +70,8 @@ classdef Pair < handle
                         pairs(count) = cur_pair;
                     end
                 end
+                close(wb);
             end
-            close(wb);
         end % constructor
         
         function [contract_A, contract_B] = num_contracts(this, price_A, price_B)
