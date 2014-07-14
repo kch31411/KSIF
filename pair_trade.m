@@ -3,6 +3,7 @@ clc; clear; close all;
 
 %% Constant declare
 % ex) pair verification period, invest entrance criteria µîµî
+FIND_PAIR_PERIOD = 360;     % 1.5 year
 
 %% Read input data
 % fnDataGuide
@@ -25,7 +26,8 @@ num_asset = size(name, 2);
 assert(num_asset == size(price, 2), 'ERROR : asset size does not match');
 
 %% Finding pair
-pairs = Pair(name, price);
+last_day = date(end);
+pairs = Pair(name, price, date, last_day, FIND_PAIR_PERIOD);
 
 num_pairs = nnz(pairs_stationary);
 disp_matrix = cell(num_pairs+1,9);
