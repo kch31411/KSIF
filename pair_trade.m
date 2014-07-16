@@ -47,12 +47,12 @@ for pair=pairs
     if pair.is_stationary
         tmp_text = [pair.name_A '\tvs.\t' pair.name_B '\t%3.1f%%\t%10.3f\t%10.3f\t%d\t%d'];
 
-        display(sprintf(tmp_text, 100 * pair.corr, pair.cc, pair.sp_mean, pair.cont_A, pair.cont_B));
+        display(sprintf(tmp_text, 100 * pair.cor, pair.cc, pair.sp_mean, pair.cont_A, pair.cont_B));
 
         title_plot = [pair.name_A ' vs. ' pair.name_B];
-        plot_spread(x2mdate(date(start_index:end_index), 0), pair.residual, title_plot, 100 * pair.corr, pair.cc, pair.cont_A, pair.cont_B); 
+        plot_spread(x2mdate(date(start_index:end_index), 0), pair.residual, title_plot, 100 * pair.cor, pair.cc, pair.cont_A, pair.cont_B); 
         tmp_mvavg = tsmovavg(pair.residual','s',5);
-        plot_spread(x2mdate(date(start_index+4:end_index)), tmp_mvavg(5:end), title_plot, 100 * pair.corr, pair.cc, pair.cont_A, pair.cont_B); 
+        plot_spread(x2mdate(date(start_index+4:end_index)), tmp_mvavg(5:end), title_plot, 100 * pair.cor, pair.cc, pair.cont_A, pair.cont_B); 
     end
 end
 

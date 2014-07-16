@@ -10,8 +10,8 @@ classdef Pair < handle
         sp_mean;    % spread mean
         residual;   % spread - mean
         std_resid;  % standard deviation of residual
-        count_A;
-        count_B;
+        cont_A;
+        cont_B;
         mul_A = 10;  % °Å·¡½Â¼ö
         mul_B = 10;
         is_stationary = 0;
@@ -39,7 +39,9 @@ classdef Pair < handle
                         cur_pair.idx_A = i;
                         cur_pair.idx_B = j;
                         cur_pair.name_A = name(i);
+                        cur_pair.name_A = cur_pair.name_A{1};
                         cur_pair.name_B = name(j);
+                        cur_pair.name_B = cur_pair.name_B{1};
                         
                         cov_pair = cov(price_A, price_B);
                         cur_pair.cc = cov_pair(2) / cov_pair(4);    % cov(A,B) / cov(B, B) = cov(A,B) / var(B)
