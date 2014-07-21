@@ -26,7 +26,17 @@ num_asset = size(name, 2);
 assert(num_asset == size(price, 2), 'ERROR : asset size does not match');
 
 %% Finding pair
-end_date = date(end);    % last date
+
+% Period set up
+get_date_from_user = input('기간 직접 입력 : y / 기본값(가장 최근날짜부터) 사용 : n)  [n]: ', 's');
+if get_date_from_user == 'y'
+    end_date = input('종료일자 (yyyy-mm-dd): ', 's');
+    end_date = datenum(end_date, 'yyyy-mm-dd');
+    period = input('관찰기간: ');
+else
+    end_date = date(end);    % last date
+    period = FIND_PAIR_PERIOD;
+end
 
 % Find range of array
 end_index = find(date==end_date, 1);
@@ -34,7 +44,7 @@ if isempty(end_index)
     end_index = num_date;
     display('Warning : invalid end_date');
 end
-start_index = end_index - FIND_PAIR_PERIOD + 1;
+start_index = end_index - period + 1;
 if start_index <= 0
     start_index = 1;
     display('Warning : not enough input data (start_date)');
