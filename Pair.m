@@ -15,6 +15,7 @@ classdef Pair < handle
         mul_A = 10;  % 거래승수
         mul_B = 10;
         is_stationary = 0;
+        entry = 0;  % Invest or not
     end
     
     methods
@@ -59,6 +60,7 @@ classdef Pair < handle
                             h2 = lmctest(cur_pair.residual, 'alpha', 0.05);
                             if h2 == 0
                                 cur_pair.is_stationary = 1;
+                                cur_pair.entry = entry_decision(cur_pair);
                             end
                         end
 
@@ -135,6 +137,23 @@ classdef Pair < handle
             contract_A = cont_A;
             contract_B = cont_B;
         end
+        
+        function decision = entry_decision(this)
+            sigma = std(this.residual);
+
+            % 2 sigma 에서 +-0.015 상의 residual은 투자시점으로 판단
+            % 진입 대상 시점 페어 확인 
+            % 1: 진입시점, 0:관찰시점
+            % XXX : 절대값이 아니라 비율로 해야하지 않나?
+            diff = this.residual(end) - 2 * sigma;
+            if diff < 0.015 && diff > -0.015
+                decision = 1;
+            else
+                decision = 0;
+            end
+        end
+
+
     end % methods
 end
 
