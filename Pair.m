@@ -143,7 +143,7 @@ classdef Pair < handle
 
             % 2 sigma 에서 +-0.015 상의 residual은 투자시점으로 판단
             % 진입 대상 시점 페어 확인 
-            % 1: 진입시점, 0:관찰시점
+            % 1: 진입시점, 0: 관찰시점
             % XXX : 절대값이 아니라 비율로 해야하지 않나?
             diff = this.residual(end) - 2 * sigma;
             if diff < 0.015 && diff > -0.015
