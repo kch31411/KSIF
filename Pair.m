@@ -153,7 +153,19 @@ classdef Pair < handle
             end
         end
 
-
+        function cc = get_cc_autocor(price1, price2)
+            autocor = @(cc) get_autocor(get_residual(price1, price2, cc));
+            cc = fminbnd(autocor, -4, 4);
+        end
+        
+        function autocor = get_autocor(res)
+            autocor = sum(res(1:end-1).*res(2:end))/sum(res(2:end).^2);
+        end
+        function res = get_residual(price1, price2, cc)
+            spread = price1 - cc * price2;
+            sp_mean = mean(spread);
+            res = spread - sp_mean;
+        end
     end % methods
 end
 
