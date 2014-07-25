@@ -16,6 +16,7 @@ classdef Pair < handle
         mul_B = 10;
         is_stationary = 0;
         entry = 0;  % Invest or not
+        return_mean = 0;
     end
     
     methods
@@ -61,6 +62,16 @@ classdef Pair < handle
                             if h2 == 0
                                 cur_pair.is_stationary = 1;
                                 cur_pair.entry = entry_decision(cur_pair);
+                                
+                                % mean return (makes profit)
+                                observation_period = 30;
+                                price_i = price(end_index:end_index+observation_period, i);
+                                price_j = price(end_index:end_index+observation_period, j);
+                                
+                                spread2 = price_i - cur_pair.cc * price_j;
+                                residual2 = spread2 - cur_pair.sp_mean;
+                                
+                                cur_pair.return_mean = mean_return_check(residual2);
                             end
                         end
 
@@ -136,6 +147,19 @@ classdef Pair < handle
 
             contract_A = cont_A;
             contract_B = cont_B;
+        end
+        
+        function ret = mean_return_check(residual)
+            init_price = residual(1);
+            epsilon = 0.01;
+            
+            if init_price < 0
+                tmp = max(abs(residual));
+                ret = (tmp + epsilon) > 0;
+            else
+                tmp = min(abs(residual));
+                ret = (tmp - epsilon) < 0;
+            end
         end
         
         function decision = entry_decision(this)
