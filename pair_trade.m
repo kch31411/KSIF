@@ -67,6 +67,29 @@ for pair=pairs
 end
 
 
-%%
+%% back testing 
+% probability of mean-reverting
+i = 1;
+pair_finding_period = FIND_PAIR_PERIOD;
+holding_period = 30;
+
+total = 0;
+success = 0;
+
+while i + pair_finding_period + holding_period < num_date
+    pairs = Pair(name, price, i, i+pair_finding_period-1);
+    
+    for pair=pairs
+        if pair.entry
+            total = total + 1;
+            
+            if pair.return_mean
+                success = success + 1;
+            end
+        end
+    end
+end
+
+display(sprintf('Back test result \nProb : %3.1f%% (%d/%d)', success/total*100, success, total));
 
 toc
