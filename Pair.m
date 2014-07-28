@@ -38,6 +38,10 @@ classdef Pair < handle
                         price_A = price(start_index:end_index, i);
                         price_B = price(start_index:end_index, j);
                         
+                        if (any(isnan(price_A)) || any(isnan(price_B)))
+                            continue;       % if there is invalid data
+                        end
+                        
                         cur_pair.idx_A = i;
                         cur_pair.idx_B = j;
                         cur_pair.name_A = name(i);
