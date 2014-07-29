@@ -57,9 +57,7 @@ classdef Pair < handle
                         cur_pair.name_B = name(j);
                         cur_pair.name_B = cur_pair.name_B{1};
                         
-                        cov_pair = cov(price_A, price_B);
-                        % cur_pair.cc = cov_pair(2) / cov_pair(4);    % cov(A,B) / cov(B, B) = cov(A,B) / var(B)
-                        cur_pair.cc = get_cc_autocor(price_A, price_B);
+                        cur_pair.cc = get_cc_ortho_reg_dist(price_A, price_B);
                         
                         cur_pair.cor = corr(price_A, price_B);
                         
@@ -210,6 +208,27 @@ classdef Pair < handle
     end % methods
 end
 
+
+function cc = get_cc_ortho_reg_dist(price1, price2)
+    cov_pair = cov(price1, price2);
+    var_x = cov_pair(1,1);
+    var_y = cov_pair(2,2);
+    cov_xy = cov_pair(1,2);
+    cc = (var_y - var_x + sign(cov_xy) * sqrt((var_x - var_y)^2 + 4 * cov_xy^2)) / (2 * cov_xy);
+end
+
+function cc = get_cc_ortho_reg_area(price1, price2)
+    cov_pair = cov(price1, price2);
+    var_x = cov_pair(1,1);
+    var_y = cov_pair(2,2);
+    cov_xy = cov_pair(1,2);
+    cc = sign(cov_xy) * sqrt(var_y / var_x);
+end
+
+function cc = get_cc_lin_reg(price1, price2)
+    cov_pair = cov(price1, price2);
+    cc = cov_pair(1, 2) / cov_pair(2, 2);    % cov(A,B) / cov(B, B) = cov(A,B) / var(B)
+end
 
 function cc = get_cc_autocor(price1, price2)
     autocor = @(cc) get_autocor(get_residual(price1, price2, cc));
