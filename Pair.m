@@ -17,6 +17,12 @@ classdef Pair < handle
         is_stationary = 0;
         entry = 0;  % Invest or not
         return_mean = 0;
+        
+        end_index;   % when finds pairs  XXX : naming..
+        entry_index;
+        
+        observe_entry = 20;  % observation period whether invest or not
+        observe_mean = 30;  % observation period close investment
     end
     
     methods
@@ -35,8 +41,10 @@ classdef Pair < handle
                 for i=1:num_asset
                     for j=(i+1):num_asset;
                         cur_pair = Pair;
-                        price_A = price(start_index:end_index, i);
-                        price_B = price(start_index:end_index, j);
+                        cur_pair.end_index = end_index;
+                        
+                        price_A = price(start_index:end_index, i)';
+                        price_B = price(start_index:end_index, j)';
                         
                         if (any(isnan(price_A)) || any(isnan(price_B)))
                             continue;       % if there is invalid data
@@ -65,17 +73,19 @@ classdef Pair < handle
                             h2 = lmctest(cur_pair.residual, 'alpha', 0.05);
                             if h2 == 0
                                 cur_pair.is_stationary = 1;
-                                cur_pair.entry = entry_decision(cur_pair);
                                 
-                                % mean return (makes profit)
-                                observation_period = 30;
-                                price_i = price(end_index:end_index+observation_period, i);
-                                price_j = price(end_index:end_index+observation_period, j);
+                                price_i = price(end_index:end, i)';
+                                price_j = price(end_index:end, j)';  % XXX : much of useless operation
                                 
                                 spread2 = price_i - cur_pair.cc * price_j;
                                 residual2 = spread2 - cur_pair.sp_mean;
                                 
-                                cur_pair.return_mean = mean_return_check(residual2);
+                                [cur_pair.entry, cur_pair.entry_index] = entry_decision(cur_pair, residual2);
+                                
+                                % mean return (makes profit)
+                                if cur_pair.entry
+                                    cur_pair.return_mean = mean_return_check(cur_pair, residual2);
+                                end
                             end
                         end
 
@@ -153,31 +163,46 @@ classdef Pair < handle
             contract_B = cont_B;
         end
         
-        function ret = mean_return_check(residual)
-            init_price = residual(1);
+        function ret = mean_return_check(this, residual)
+            residual = residual(this.entry_index - this.end_index + 1:end);   % after entry
+            
+            entry_price = residual(1);
             epsilon = 0.01;
             
-            if init_price < 0
-                tmp = max(abs(residual));
-                ret = (tmp + epsilon) > 0;
-            else
-                tmp = min(abs(residual));
-                ret = (tmp - epsilon) < 0;
+            ret = 0;
+            i = 0;
+            for v = residual
+                if ~isnan(v) && ((entry_price < 0 && v + epsilon > 0) || ...
+                        (entry_price >= 0 && v - epsilon < 0))
+                    ret = 1;
+                    return
+                end
+                
+                i = i + 1;
+                if i > this.observe_mean
+                    return
+                end
             end
         end
         
-        function decision = entry_decision(this)
-            sigma = std(this.residual);
-
-            % 2 sigma 에서 +-0.015 상의 residual은 투자시점으로 판단
-            % 진입 대상 시점 페어 확인 
-            % 1: 진입시점, 0: 관찰시점
-            % XXX : 절대값이 아니라 비율로 해야하지 않나?
-            diff = this.residual(end) - 2 * sigma;
-            if diff < 0.015 && diff > -0.015
-                decision = 1;
-            else
-                decision = 0;
+        function [decision, entry_index] = entry_decision(this, residual)
+            sigma = this.std_resid;
+            
+            decision = 0;
+            entry_index = -1;
+            
+            i = 0;
+            for v = residual
+                if ~isnan(v) && (v < (- 2 * sigma) || v > (2 * sigma))
+                    decision = 1;
+                    entry_index = this.end_index + i;
+                    return
+                end
+                
+                i = i + 1;
+                if i > this.observe_entry
+                    return
+                end
             end
         end
 

@@ -49,22 +49,22 @@ if start_index <= 0
     start_index = 1;
     display('Warning : not enough input data (start_date)');
 end
-
-pairs = Pair(name, price, start_index, end_index);
-
-display(sprintf('asset A\tvs.\tasset B\tcorrelation\tcointegration\tspread mean\tcontraction A\tcontraction B\n'));
-for pair=pairs
-    if pair.is_stationary
-        tmp_text = [pair.name_A '\tvs.\t' pair.name_B '\t%3.1f%%\t%10.3f\t%10.3f\t%d\t%d'];
-
-        display(sprintf(tmp_text, 100 * pair.cor, pair.cc, pair.sp_mean, pair.cont_A, pair.cont_B));
-
-        title_plot = [pair.name_A ' vs. ' pair.name_B];
-        plot_spread(x2mdate(date(start_index:end_index), 0), pair.residual, title_plot, 100 * pair.cor, pair.cc, pair.cont_A, pair.cont_B); 
-        tmp_mvavg = tsmovavg(pair.residual','s',5);
-        plot_spread(x2mdate(date(start_index+4:end_index)), tmp_mvavg(5:end), title_plot, 100 * pair.cor, pair.cc, pair.cont_A, pair.cont_B); 
-    end
-end
+% 
+% pairs = Pair(name, price, start_index, end_index);
+% 
+% display(sprintf('asset A\tvs.\tasset B\tcorrelation\tcointegration\tspread mean\tcontraction A\tcontraction B\n'));
+% for pair=pairs
+%     if pair.is_stationary
+%         tmp_text = [pair.name_A '\tvs.\t' pair.name_B '\t%3.1f%%\t%10.3f\t%10.3f\t%d\t%d'];
+% 
+%         display(sprintf(tmp_text, 100 * pair.cor, pair.cc, pair.sp_mean, pair.cont_A, pair.cont_B));
+% 
+%         title_plot = [pair.name_A ' vs. ' pair.name_B];
+%         plot_spread(x2mdate(date(start_index:end_index), 0), pair.residual, title_plot, 100 * pair.cor, pair.cc, pair.cont_A, pair.cont_B); 
+%         tmp_mvavg = tsmovavg(pair.residual','s',5);
+%         plot_spread(x2mdate(date(start_index+4:end_index)), tmp_mvavg(5:end), title_plot, 100 * pair.cor, pair.cc, pair.cont_A, pair.cont_B); 
+%     end
+% end
 
 
 %% back testing 
@@ -72,6 +72,7 @@ end
 i = 1;
 pair_finding_period = FIND_PAIR_PERIOD;
 holding_period = 30;
+pair_update_period = 20;
 
 total = 0;
 success = 0;
@@ -88,6 +89,8 @@ while i + pair_finding_period + holding_period < num_date
             end
         end
     end
+    
+    i = i + pair_update_period;
 end
 
 display(sprintf('Back test result \nProb : %3.1f%% (%d/%d)', success/total*100, success, total));
